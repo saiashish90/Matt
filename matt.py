@@ -1,4 +1,5 @@
 import os
+import sys
 
 import discord
 from discord.ext import commands
@@ -24,6 +25,7 @@ async def help(ctx):
 async def on_ready():
     await bot.change_presence(activity = discord.Game('Wii Sports'))
     print(f'{bot.user} has connected to Discord!')
+    sys.stdout.flush()
 
 # Importing all the cogs
 for extension in startup_extensions:
