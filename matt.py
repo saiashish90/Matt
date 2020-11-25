@@ -29,4 +29,4 @@ async def on_ready():
 for extension in startup_extensions:
     bot.load_extension(extension)
 
-bot.run(str(os.environ.get('BOT_TOKEN')))
+bot.run(str(os.environ.get('DISCORD_TOKEN')))
