@@ -6,8 +6,8 @@ from discord.ext import commands
 # from dotenv import load_dotenv
 
 # load_dotenv()
-# TOKEN = os.getenv('DISCORD_TOKEN')
-print(str(os.environ.get('DISCORD_TOKEN')))
+
+TOKEN = os.getenv('DISCORD_TOKEN')
 sys.stdout.flush()
 # Paths for all the cogs
 startup_extensions = ['cogs.basic']
@@ -33,4 +33,4 @@ async def on_ready():
 for extension in startup_extensions:
     bot.load_extension(extension)
 
-bot.run(str(os.environ.get('DISCORD_TOKEN')))
+bot.run(TOKEN)
