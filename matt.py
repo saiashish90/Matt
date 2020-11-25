@@ -5,8 +5,10 @@ import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 
-load_dotenv()
-TOKEN = os.getenv('DISCORD_TOKEN')
+# load_dotenv()
+# TOKEN = os.getenv('DISCORD_TOKEN')
+print(str(os.environ.get('DISCORD_TOKEN')))
+sys.stdout.flush()
 # Paths for all the cogs
 startup_extensions = ['cogs.basic']
 # initializing bot commands
