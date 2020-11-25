@@ -3,22 +3,19 @@ import sys
 
 import discord
 from discord.ext import commands
-# from dotenv import load_dotenv
+from dotenv import load_dotenv
 
-# load_dotenv()
+load_dotenv()
 
 TOKEN = os.getenv('DISCORD_TOKEN')
 sys.stdout.flush()
 # Paths for all the cogs
-startup_extensions = ['cogs.basic']
+startup_extensions = ['cogs.basic','cogs.amongus']
 # initializing bot commands
 bot = commands.Bot(command_prefix="$")
 bot.remove_command('help')
 @bot.command()
 async def help(ctx):
-    embed = discord.Embed(
-        color = discord.Color.orange()
-    )
     embed=discord.Embed(title="Help",description="***Commands***\n\n`$ping [role/user] [n]` \nPings role/user n times ", color=0xff7b00)
     await ctx.channel.send(embed=embed)
 

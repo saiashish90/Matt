@@ -28,8 +28,7 @@ class BasicCog(commands.Cog):
                         break
                     await channel.send(messages[random.randint(0,len(messages)-1)]+member.mention)
         except: 
-            embed = discord.Embed(color = discord.Color.orange())
-            embed=discord.Embed(title="Help",description="`$ping [role/user] [n]`", color=0xff7b00)
+            embed = discord.Embed(title="Help",description="`$ping [role/user] [n]`", color=0xff7b00)
             await ctx.channel.send(embed=embed)
         
 
