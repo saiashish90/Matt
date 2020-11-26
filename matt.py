@@ -8,11 +8,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 TOKEN = os.getenv('DISCORD_TOKEN')
-sys.stdout.flush()
+intents = discord.Intents().all()
 # Paths for all the cogs
 startup_extensions = ['cogs.basic','cogs.amongus']
 # initializing bot commands
-bot = commands.Bot(command_prefix="$")
+bot = commands.Bot(command_prefix="$",intents=intents)
 bot.remove_command('help')
 @bot.command()
 async def help(ctx):
