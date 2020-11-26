@@ -16,7 +16,7 @@ bot = commands.Bot(command_prefix="$",intents=intents)
 bot.remove_command('help')
 @bot.command()
 async def help(ctx):
-    embed=discord.Embed(title="Help",description="***Commands***\n\n`$ping [role/user] [n]` \nPings role/user n times ", color=0xff7b00)
+    embed=discord.Embed(title="Help",description="***Commands***\n\n`$ping [role/user] [n]` \nPings role/user n times.\n\n`$amongus`\nLets you mute members during among us game.", color=0xff7b00)
     await ctx.channel.send(embed=embed)
 
 # Bot on load functions

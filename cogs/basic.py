@@ -20,11 +20,13 @@ class BasicCog(commands.Cog):
             for i in range(0,arg):
                 channel = discord.utils.get(ctx.guild.channels, name='bot-spam')
                 if channel is None:
-                    await ctx.channel.send("Make a channel called 'bot-spam' to use the ping command")
+                    embed = discord.Embed(title="Ping",description="Make a channel called 'bot-spam' to use the ping command", color=0xff7b00)
+                    await ctx.channel.send(embed = embed)
                     break
                 else:
                     if(i == 25):
-                        await channel.send("Ping limit is 25")
+                        embed = discord.Embed(title="Ping",description="Ping limit is 25", color=0xff7b00)
+                        await channel.send(embed = embed)
                         break
                     await channel.send(messages[random.randint(0,len(messages)-1)]+member.mention)
         except: 
