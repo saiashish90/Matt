@@ -30,7 +30,7 @@ class AmongusCog(commands.Cog):
             if(str(reaction.member)!='Mattt#2230'):
                 if(reaction.message_id == self.message.id):
                     channel = self.bot.get_channel(reaction.channel_id)
-                    [await member.edit(mute=True) for member in self.vc.members];
+                    [await member.edit(mute=True) for member in self.vc.members]
         else:
             if(str(reaction.member)!='Mattt#2230'):
                 if(reaction.message_id == self.message.id):
@@ -41,8 +41,7 @@ class AmongusCog(commands.Cog):
         if(str(reaction.member)!='Mattt#2230'):
             if(reaction.message_id == self.message.id):
                 channel = self.bot.get_channel(reaction.channel_id)
-                for member in self.vc.members:
-                    await member.edit(mute=False)
+                [await member.edit(mute=False) for member in self.vc.members]
 
 def setup(bot):
     bot.add_cog(AmongusCog(bot))
