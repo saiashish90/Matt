@@ -1,47 +1,130 @@
-import random
-import discord
-from discord.ext import commands
+import asyncio
+import os
+import json
 
-#basic commands class
+import discord
+from discord.ext import tasks, commands
+
+import firebase_admin
+from firebase_admin import credentials
+from firebase_admin import firestore
+
+cred = credentials.Certificate(json.loads(os.getenv('GOOGLE_KEY')))
+firebase_admin.initialize_app(cred, {
+    'projectId': 'amongus-44241'
+}, 'cog')
+db = firestore.client()
+firebaseListener = {}
+# basic commands class
+
+
 class AmongusCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.message = None
-        self.vc = None
-    
-    # Ping command function
-    @commands.command()
-    async def amongus(self,ctx):
-        if(ctx.author.voice and ctx.author.voice.channel):
-            self.vc = ctx.author.voice.channel
-            embed = discord.Embed(title="Among Us",description="React to the speaker to mute/unmute.\nReact to the stop to stop the game", color=0xff7b00)
-            self.message = await ctx.channel.send(embed=embed)
-            emoji1 = '🔇'
-            emoji2 = '🛑'
-            await self.message.add_reaction(emoji1)
-            await self.message.add_reaction(emoji2)
-        else:
-            embed = discord.Embed(title="Among Us",description="You must join a voice channel to start a game.", color=0xff7b00)
-            self.message = await ctx.channel.send(embed=embed) 
+
+    async def muter(self, doc):
+        guild_id = (doc._reference.parent.parent.id)
+        data = doc.to_dict()
+        channel = self.bot.get_channel(data['game_channel'])
+        print(str(channel))
+        if(doc.to_dict()['game_state'] == 'discussion' and data['is_muted']):
+            arg = False
+            [await member.edit(mute=arg) for member in channel.members]
+            db.collection('Mattt').document(guild_id).collection('amongus').document('stats').update({
+                "is_muted": arg,
+            })
+        elif(doc.to_dict()['game_state'] == 'tasks' and not(data['is_muted'])):
+            arg = True
+            [await member.edit(mute=arg) for member in channel.members]
+            db.collection('Mattt').document(guild_id).collection('amongus').document('stats').update({
+                "is_muted": arg,
+            })
+
+    def on_snapshot(self, doc_snapshot, changes, read_time):
+        send_fut = asyncio.run_coroutine_threadsafe(
+            self.muter(doc_snapshot[0]), self.bot.loop)
+        send_fut.result()
 
     @commands.Cog.listener()
-    async def on_raw_reaction_add(self,reaction):
+    async def on_raw_reaction_add(self, reaction):
         if(str(reaction.emoji) == str('🔇')):
-            if(str(reaction.member)!='Mattt#2230'):
-                if(reaction.message_id == self.message.id):
-                    channel = self.bot.get_channel(reaction.channel_id)
-                    [await member.edit(mute=True) for member in self.vc.members]
+            if(str(reaction.member) != 'Mattt#2230'):
+                gamedetails = db.collection('Mattt').document(str(reaction.guild_id)).collection(
+                    'amongus').document('stats').get().to_dict()
+                if reaction.member.voice:
+                    if gamedetails['game_channel'] == reaction.member.voice.channel.id:
+                        if gamedetails['message_id'] == reaction.message_id:
+                            channel = self.bot.get_channel(
+                                gamedetails['game_channel'])
+                            [await member.edit(mute=True) for member in channel.members]
         else:
-            if(str(reaction.member)!='Mattt#2230'):
-                if(reaction.message_id == self.message.id):
-                    await self.message.delete()
-        
+            if(str(reaction.member) != 'Mattt#2230'):
+                gamedetails = db.collection('Mattt').document(str(reaction.guild_id)).collection(
+                    'amongus').document('stats').get().to_dict()
+                if reaction.member.voice:
+                    if gamedetails['game_channel'] == reaction.member.voice.channel.id:
+                        if gamedetails['message_id'] == reaction.message_id:
+                            message = await self.bot.get_channel(reaction.channel_id).fetch_message(reaction.message_id)
+                            channel = self.bot.get_channel(
+                                gamedetails['game_channel'])
+                            [await member.edit(mute=False) for member in channel.members]
+                            await message.delete()
+                            doc = firebaseListener[str(reaction.guild_id)]
+                            doc.unsubscribe()
+                            db.collection('Mattt').document(str(reaction.guild_id)).collection('amongus').document('stats').update({
+                                "is_playing": False,
+                                "is_muted": False,
+                                "game_state": 'discussion',
+                                'game_code': '',
+                                'game_channel': '',
+                                'message_id': '',
+                            })
+
     @commands.Cog.listener()
-    async def on_raw_reaction_remove(self,reaction):
-        if(str(reaction.member)!='Mattt#2230'):
-            if(reaction.message_id == self.message.id):
-                channel = self.bot.get_channel(reaction.channel_id)
-                [await member.edit(mute=False) for member in self.vc.members]
+    async def on_raw_reaction_remove(self, reaction):
+        member = self.bot.get_guild(
+            reaction.guild_id).get_member(reaction.user_id)
+        if(str(reaction.emoji) == str('🔇')):
+            if(str(member) != 'Mattt#2230'):
+                gamedetails = db.collection('Mattt').document(str(reaction.guild_id)).collection(
+                    'amongus').document('stats').get().to_dict()
+                if member.voice:
+                    if gamedetails['game_channel'] == member.voice.channel.id:
+                        if gamedetails['message_id'] == reaction.message_id:
+                            channel = self.bot.get_channel(
+                                gamedetails['game_channel'])
+                            [await member.edit(mute=False) for member in channel.members]
+
+    @commands.command()
+    async def amongus(self, ctx, arg):
+        if db.collection('Mattt').document(str(ctx.guild.id)).collection('amongus').document('stats').get().to_dict()['is_playing']:
+            embed = discord.Embed(
+                title="Among Us", description="A game is already being played", color=0xff7b00)
+            await ctx.channel.send(embed=embed)
+        else:
+            if(ctx.author.voice and ctx.author.voice.channel):
+                embed = discord.Embed(
+                    title="Among Us[BETA]", description="Mute/Unmute should happen automatically\nReact to the speaker to mute/unmute.\nReact to the stop to stop the game", color=0xff7b00)
+                message = await ctx.channel.send(embed=embed)
+                emoji1 = '🔇'
+                emoji2 = '🛑'
+                await message.add_reaction(emoji1)
+                await message.add_reaction(emoji2)
+                db.collection('Mattt').document(str(ctx.guild.id)).collection('amongus').document('stats').update({
+                    "is_playing": True,
+                    "is_muted": False,
+                    "game_state": 'discussion',
+                    'game_code': arg,
+                    'game_channel': ctx.author.voice.channel.id,
+                    'message_id': message.id,
+                })
+                firebaseListener[str(ctx.guild.id)] = db.collection('Mattt').document(str(ctx.guild.id)).collection(
+                    'amongus').document('stats').on_snapshot(self.on_snapshot)
+            else:
+                embed = discord.Embed(
+                    title="Among Us", description="You must join a voice channel to start a game.", color=0xff7b00)
+                await ctx.channel.send(embed=embed)
+
 
 def setup(bot):
     bot.add_cog(AmongusCog(bot))
