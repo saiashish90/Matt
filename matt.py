@@ -13,7 +13,7 @@ import firebase_admin
 TOKEN = os.getenv('DISCORD_TOKEN')
 intents = discord.Intents().all()
 # firebase
-print(json.loads(os.getenv('GOOGLE_KEY')))
+
 cred = credentials.Certificate(json.loads(os.getenv('GOOGLE_KEY')))
 firebase_admin.initialize_app(cred, {
     'projectId': 'amongus-44241'
