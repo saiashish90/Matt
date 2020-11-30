@@ -9,8 +9,8 @@ from async_timeout import timeout
 from functools import partial
 from youtube_dl import YoutubeDL
 
-if not discord.opus.is_loaded():
-    discord.opus.load_opus('opus')
+# if not discord.opus.is_loaded():
+#     discord.opus.load_opus('opus')
 
 ytdlopts = {
     'format': 'bestaudio/best',
