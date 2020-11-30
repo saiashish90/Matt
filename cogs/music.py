@@ -24,7 +24,7 @@ ytdlopts = {
     'source_address': '0.0.0.0'  # ipv6 addresses cause issues sometimes
 }
 ffmpegopts = {
-    'executable': './bin/ffmpeg.exe',
+    # 'executable': './bin/ffmpeg.exe',
     'before_options': '-nostdin -reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
     'options': '-vn'
 }
@@ -56,19 +56,14 @@ class YTDLSource(discord.PCMVolumeTransformer):
         data = await loop.run_in_executor(None, to_run)
         songs = []
         if 'entries' in data:
-            for song in data['entries']:
-                songs.append(
-                    {'webpage_url': song['webpage_url'], 'requester': ctx.author, 'title': song['title']})
-        else:
-            songs.append(
-                {'webpage_url': data['webpage_url'], 'requester': ctx.author, 'title': data['title']})
+            data = data['entries'][0]
 
         await ctx.send(f'```ini\n[Added {data["title"]} to the Queue.]\n```', delete_after=15)
 
         if download:
             source = ytdl.prepare_filename(data)
         else:
-            return songs
+            return {'webpage_url': data['webpage_url'], 'requester': ctx.author, 'title': data['title']}
 
         return cls(discord.FFmpegPCMAudio(source, ** ffmpegopts), data=data, requester=ctx.author)
 
@@ -229,9 +224,8 @@ class Music(commands.Cog):
             await ctx.invoke(self.connect_)
 
         player = self.get_player(ctx)
-        sources = await YTDLSource.create_source(ctx, search, loop=self.bot.loop, download=False)
-        for source in sources:
-            await player.queue.put(source)
+        source = await YTDLSource.create_source(ctx, search, loop=self.bot.loop, download=False)
+        await player.queue.put(source)
 
     @commands.command(name='pause')
     async def pause_(self, ctx):
