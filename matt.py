@@ -20,7 +20,7 @@ firebase_admin.initialize_app(cred, {
 })
 db = firestore.client()
 # Paths for all the cogs
-startup_extensions = ['cogs.basic', 'cogs.amongus', 'cogs.music']
+startup_extensions = ['cogs.basic', 'cogs.amongus']
 # initializing bot commands
 bot = commands.Bot(command_prefix="$", intents=intents)
 bot.remove_command('help')
