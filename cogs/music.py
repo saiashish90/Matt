@@ -9,6 +9,9 @@ from async_timeout import timeout
 from functools import partial
 from youtube_dl import YoutubeDL
 
+if not discord.opus.is_loaded():
+    discord.opus.load_default()
+
 ytdlopts = {
     'format': 'bestaudio/best',
     'outtmpl': 'downloads/%(extractor)s-%(id)s-%(title)s.%(ext)s',
