@@ -9,6 +9,8 @@ from async_timeout import timeout
 from functools import partial
 from youtube_dl import YoutubeDL
 
+if not discord.opus.is_loaded():
+    discord.opus.load_opus('opus')
 
 ytdlopts = {
     'format': 'bestaudio/best',
@@ -49,7 +51,7 @@ class YTDLSource(discord.PCMVolumeTransformer):
         self.title = data.get('title')
         self.web_url = data.get('webpage_url')
 
-    @classmethod
+    @ classmethod
     async def create_source(cls, ctx, search: str, *, loop, download=False):
         loop = loop or asyncio.get_event_loop()
         to_run = partial(ytdl.extract_info, url=search, download=download)
@@ -67,7 +69,7 @@ class YTDLSource(discord.PCMVolumeTransformer):
 
         return cls(discord.FFmpegPCMAudio(source, ** ffmpegopts), data=data, requester=ctx.author)
 
-    @classmethod
+    @ classmethod
     async def regather_stream(cls, data, *, loop):
         loop = loop or asyncio.get_event_loop()
         requester = data['requester']
@@ -186,7 +188,7 @@ class Music(commands.Cog):
 
         return player
 
-    @commands.command(name='connect', aliases=['join'])
+    @ commands.command(name='connect', aliases=['join'])
     async def connect_(self, ctx, *, channel: discord.VoiceChannel = None):
         if not channel:
             try:
@@ -214,7 +216,7 @@ class Music(commands.Cog):
 
         await ctx.send(f'Connected to: **{channel}**', delete_after=20)
 
-    @commands.command(name='play', aliases=['sing'])
+    @ commands.command(name='play', aliases=['sing'])
     async def play_(self, ctx, *, search: str):
         await ctx.trigger_typing()
 
@@ -227,7 +229,7 @@ class Music(commands.Cog):
         source = await YTDLSource.create_source(ctx, search, loop=self.bot.loop, download=False)
         await player.queue.put(source)
 
-    @commands.command(name='pause')
+    @ commands.command(name='pause')
     async def pause_(self, ctx):
         vc = ctx.voice_client
 
@@ -239,7 +241,7 @@ class Music(commands.Cog):
         vc.pause()
         await ctx.send(f'**`{ctx.author}`**: Paused the song!')
 
-    @commands.command(name='resume')
+    @ commands.command(name='resume')
     async def resume_(self, ctx):
         vc = ctx.voice_client
 
@@ -251,7 +253,7 @@ class Music(commands.Cog):
         vc.resume()
         await ctx.send(f'**`{ctx.author}`**: Resumed the song!')
 
-    @commands.command(name='skip')
+    @ commands.command(name='skip')
     async def skip_(self, ctx):
         vc = ctx.voice_client
 
@@ -266,7 +268,7 @@ class Music(commands.Cog):
         vc.stop()
         await ctx.send(f'**`{ctx.author}`**: Skipped the song!')
 
-    @commands.command(name='queue', aliases=['q', 'playlist'])
+    @ commands.command(name='queue', aliases=['q', 'playlist'])
     async def queue_info(self, ctx):
         vc = ctx.voice_client
 
@@ -286,7 +288,7 @@ class Music(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    @commands.command(name='now_playing', aliases=['np', 'current', 'currentsong', 'playing'])
+    @ commands.command(name='now_playing', aliases=['np', 'current', 'currentsong', 'playing'])
     async def now_playing_(self, ctx):
         vc = ctx.voice_client
 
@@ -305,7 +307,7 @@ class Music(commands.Cog):
         player.np = await ctx.send(f'**Now Playing:** `{vc.source.title}` '
                                    f'requested by `{vc.source.requester}`')
 
-    @commands.command(name='volume', aliases=['vol'])
+    @ commands.command(name='volume', aliases=['vol'])
     async def change_volume(self, ctx, *, vol: float):
         vc = ctx.voice_client
 
@@ -323,7 +325,7 @@ class Music(commands.Cog):
         player.volume = vol / 100
         await ctx.send(f'**`{ctx.author}`**: Set the volume to **{vol}%**')
 
-    @commands.command(name='stop')
+    @ commands.command(name='stop')
     async def stop_(self, ctx):
         vc = ctx.voice_client
 
