@@ -52,19 +52,23 @@ class YTDLSource(discord.PCMVolumeTransformer):
     @classmethod
     async def create_source(cls, ctx, search: str, *, loop, download=False):
         loop = loop or asyncio.get_event_loop()
-
         to_run = partial(ytdl.extract_info, url=search, download=download)
         data = await loop.run_in_executor(None, to_run)
-
+        songs = []
         if 'entries' in data:
-            data = data['entries'][0]
+            for song in data['entries']:
+                songs.append(
+                    {'webpage_url': song['webpage_url'], 'requester': ctx.author, 'title': song['title']})
+        else:
+            songs.append(
+                {'webpage_url': data['webpage_url'], 'requester': ctx.author, 'title': data['title']})
 
         await ctx.send(f'```ini\n[Added {data["title"]} to the Queue.]\n```', delete_after=15)
 
         if download:
             source = ytdl.prepare_filename(data)
         else:
-            return {'webpage_url': data['webpage_url'], 'requester': ctx.author, 'title': data['title']}
+            return songs
 
         return cls(discord.FFmpegPCMAudio(source, ** ffmpegopts), data=data, requester=ctx.author)
 
@@ -225,9 +229,9 @@ class Music(commands.Cog):
             await ctx.invoke(self.connect_)
 
         player = self.get_player(ctx)
-        source = await YTDLSource.create_source(ctx, search, loop=self.bot.loop, download=False)
-
-        await player.queue.put(source)
+        sources = await YTDLSource.create_source(ctx, search, loop=self.bot.loop, download=False)
+        for source in sources:
+            await player.queue.put(source)
 
     @commands.command(name='pause')
     async def pause_(self, ctx):
