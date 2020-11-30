@@ -8,8 +8,8 @@ from firebase_admin import firestore
 from firebase_admin import credentials
 import firebase_admin
 
-from dotenv import load_dotenv
-load_dotenv()
+# from dotenv import load_dotenv
+# load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 intents = discord.Intents().all()
 # firebase
