@@ -1,4 +1,4 @@
-discord.py[voice]==1.5.1
+discord.py
 requests==2.25.0
 firebase-admin == 4.4.0
 youtube_dl==2020.11.29

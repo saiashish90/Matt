@@ -1,6 +1,7 @@
 import asyncio
 import os
 import json
+import random
 
 import discord
 from discord.ext import tasks, commands
@@ -96,15 +97,16 @@ class AmongusCog(commands.Cog):
                             [await member.edit(mute=False) for member in channel.members]
 
     @commands.command()
-    async def amongus(self, ctx, arg):
+    async def amongus(self, ctx):
         if db.collection('Mattt').document(str(ctx.guild.id)).collection('amongus').document('stats').get().to_dict()['is_playing']:
             embed = discord.Embed(
                 title="Among Us", description="A game is already being played", color=0xff7b00)
             await ctx.channel.send(embed=embed)
         else:
             if(ctx.author.voice and ctx.author.voice.channel):
+                arg = random.randint(10000,99999)
                 embed = discord.Embed(
-                    title="Among Us[BETA]", description="Mute/Unmute should happen automatically\nReact to the speaker to mute/unmute.\nReact to the stop to stop the game", color=0xff7b00)
+                    title="Among Us[BETA]", description="Connect token:"+str(arg)+"\nMute/Unmute should happen automatically\nReact to the speaker to mute/unmute.\nReact to the stop to stop the game", color=0xff7b00)
                 message = await ctx.channel.send(embed=embed)
                 emoji1 = '🔇'
                 emoji2 = '🛑'
@@ -114,7 +116,7 @@ class AmongusCog(commands.Cog):
                     "is_playing": True,
                     "is_muted": False,
                     "game_state": 'discussion',
-                    'game_code': arg,
+                    'game_code': str(arg),
                     'game_channel': ctx.author.voice.channel.id,
                     'message_id': message.id,
                 })
