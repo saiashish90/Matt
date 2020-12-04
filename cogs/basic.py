@@ -13,6 +13,18 @@ class BasicCog(commands.Cog):
         messages = [
             'peepee small',
             'thou art gay',
+            'your family tree lgbt',
+            'your granny tranny',
+            'your sister mister',
+            'your family reuninon homosexual communion',
+            'negative stonks',
+            'homosexual panda',
+            'chicken boy',
+            'hahaha wow hmps',
+            'QUAAAACCKK',
+            'dadialtar',
+            'bimbi',
+            'yo momma so fat thanos had to clap twice'
             ]
         converter = commands.MemberConverter()
         try:
